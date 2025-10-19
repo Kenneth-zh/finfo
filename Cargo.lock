@@ -319,20 +319,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a2330da5de22e8a3cb63252ce2abb30116bf5265e89c0e01bc17015ce30a476"
 
 [[package]]
-name = "decimal"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a8ab77e91baeb15034c3be91e87bff4665c9036216148e4996d9a9f5792114d"
-dependencies = [
- "bitflags 1.3.2",
- "cc",
- "libc",
- "ord_subset",
- "rustc-serialize",
- "serde",
-]
-
-[[package]]
 name = "deranged"
 version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -428,7 +414,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
- "decimal",
  "dotenv",
  "longport",
  "reqwest 0.11.27",
@@ -1305,12 +1290,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ord_subset"
-version = "3.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7ce14664caf5b27f5656ff727defd68ae1eb75ef3c4d95259361df1eb376bef"
-
-[[package]]
 name = "parking_lot"
 version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1813,12 +1792,6 @@ name = "rustc-hash"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "357703d41365b4b27c590e3ed91eabb1b663f07c4c084095e60cbed4362dff0d"
-
-[[package]]
-name = "rustc-serialize"
-version = "0.3.25"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe834bc780604f4674073badbad26d7219cadfb4a2275802db12cbae17498401"
 
 [[package]]
 name = "rustix"

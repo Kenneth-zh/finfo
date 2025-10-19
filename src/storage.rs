@@ -25,7 +25,7 @@ impl InfluxDBStorage {
         }
         let line_protocol = prices
             .iter()
-            .map(|p| format!("stock_price,symbol={} price={}", p.symbol, p.price))
+            .map(|p| format!("stock_price,symbol={} price={}", p.symbol, p.last_done))
             .collect::<Vec<_>>()
             .join("\n");
 

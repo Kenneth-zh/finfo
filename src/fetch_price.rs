@@ -1,5 +1,4 @@
 use anyhow::Result;
-use decimal::Decimal;
 use dotenv::dotenv;
 use longport::Config;
 use longport::quote::QuoteContext;
@@ -28,9 +27,11 @@ impl QuoteFetcher {
         let prices = quotes
             .into_iter()
             .filter_map(|q| {
+                let price_str = q.last_done.to_string();
+                let price = price_str.parse::<f64>().ok()?;
                 Some(StockPrice {
                     symbol: q.symbol.clone(),
-                    last_done: q.last_done.to_f64()?,
+                    last_done: price,
                 })
             })
             .collect();
