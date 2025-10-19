@@ -1,5 +1,6 @@
 use crate::fetch_price::StockPrice;
 use anyhow::{Result, anyhow};
+use dotenv::dotenv;
 use reqwest::Client;
 
 pub struct InfluxDBStorage {
@@ -10,6 +11,7 @@ pub struct InfluxDBStorage {
 
 impl InfluxDBStorage {
     pub fn new() -> Result<Self> {
+        dotenv().ok();
         let url = std::env::var("INFLUX_URL")?;
         let token = std::env::var("INFLUXDB_AUTH_TOKEN")?;
         Ok(Self {
