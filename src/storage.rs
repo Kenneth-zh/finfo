@@ -27,7 +27,8 @@ impl InfluxDBStorage {
         }
         let line_protocol = prices
             .iter()
-            .map(|p| format!("stock_price,symbol={} price={}", p.symbol, p.last_done))
+            .map(|p| format!("stock_price,symbol={} last_done={} prev_close={} open={} high={} low={} timestamp={} volume={} turnover={}", 
+                p.symbol, p.last_done, p.prev_close, p.open, p.high, p.low, p.timestamp * 1_000_000_000, p.volume, p.turnover))
             .collect::<Vec<_>>()
             .join("\n");
 
@@ -57,16 +58,17 @@ mod test {
     #[tokio::test]
     async fn test_influxdb_write() {
         let storage = InfluxDBStorage::new().unwrap();
-        let prices = vec![
-            StockPrice {
-                symbol: "AAPL.US".to_string(),
-                last_done: 150.0,
-            },
-            StockPrice {
-                symbol: "AMD.US".to_string(),
-                last_done: 100.0,
-            },
-        ];
+        let prices = vec![StockPrice {
+            symbol: "AAPL.US".to_string(),
+            last_done: 150.0,
+            prev_close: 148.0,
+            open: 149.0,
+            high: 151.0,
+            low: 147.5,
+            timestamp: 1700000000,
+            volume: 1000000,
+            turnover: 150000000.0,
+        }];
         let res = storage.write_prices(&prices).await;
         assert!(res.is_ok());
     }
