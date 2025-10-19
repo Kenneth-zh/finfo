@@ -1,29 +1,32 @@
-use std::sync::Arc;
-
+use anyhow::Result;
 use dotenv::dotenv;
-use longport::{
-    Config,
-    quote::{QuoteContext, SubFlags},
-};
-use tracing_subscriber::EnvFilter;
+use std::time::Duration;
+use tokio::time::interval;
+
+mod fetch_price;
+mod storage;
+
+use fetch_price::QuoteFetcher;
+use storage::InfluxDBStorage;
+
+async fn load_watchlist() -> Vec<String> {
+    if let Ok(list) = std::env::var("WATCHLIST") {
+        return list.split(',').map(|s| s.trim().to_string()).collect();
+    }
+    vec!["700.HK".to_string(), "AAPL.US".to_string()]
+}
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<()> {
     dotenv().ok();
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env())
-        .init();
+    let fetcher = QuoteFetcher::new().await?;
+    let storage = InfluxDBStorage::new()?;
+    let watchlist = load_watchlist().await;
 
-    let config = Arc::new(Config::from_env()?);
-    let (ctx, mut receiver) = QuoteContext::try_new(config).await?;
-    ctx.subscribe(
-        ["700.HK", "AAPL.US", "TSLA.US", "NFLX.US"],
-        SubFlags::QUOTE,
-        true,
-    )
-    .await?;
-    while let Some(event) = receiver.recv().await {
-        println!("{:?}", event);
+    let mut ticker = interval(Duration::from_secs(30));
+    loop {
+        ticker.tick().await;
+        let prices = fetcher.fetch_prices(&watchlist).await?;
+        storage.write_prices(&prices).await?;
     }
-    Ok(())
 }
