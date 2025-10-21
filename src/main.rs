@@ -19,8 +19,11 @@ async fn load_watchlist() -> Vec<String> {
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
+    let url = std::env::var("INFLUX_URL")?;
+    let token = std::env::var("INFLUXDB_AUTH_TOKEN")?;
+    
     let fetcher = QuoteFetcher::new().await?;
-    let storage = InfluxDBStorage::new()?;
+    let storage = InfluxDBStorage::new(url, token)?;
     let watchlist = load_watchlist().await;
 
     let mut ticker = interval(Duration::from_secs(30));

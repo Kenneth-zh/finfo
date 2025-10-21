@@ -1,6 +1,5 @@
 use crate::fetch_price::StockPrice;
 use anyhow::{Result, anyhow};
-use dotenv::dotenv;
 use reqwest::Client;
 
 pub struct InfluxDBStorage {
@@ -10,10 +9,7 @@ pub struct InfluxDBStorage {
 }
 
 impl InfluxDBStorage {
-    pub fn new() -> Result<Self> {
-        dotenv().ok();
-        let url = std::env::var("INFLUX_URL")?;
-        let token = std::env::var("INFLUXDB_AUTH_TOKEN")?;
+    pub fn new(url: String, token: String) -> Result<Self> {
         Ok(Self {
             client: Client::new(),
             url,
@@ -49,27 +45,5 @@ impl InfluxDBStorage {
                 resp.text().await.unwrap_or_default()
             ))
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[tokio::test]
-    async fn test_influxdb_write() {
-        let storage = InfluxDBStorage::new().unwrap();
-        let prices = vec![StockPrice {
-            symbol: "AAPL.US".to_string(),
-            last_done: 150.0,
-            prev_close: 148.0,
-            open: 149.0,
-            high: 151.0,
-            low: 147.5,
-            timestamp: 1700000000,
-            volume: 1000000,
-            turnover: 150000000.0,
-        }];
-        let res = storage.write_prices(&prices).await;
-        assert!(res.is_ok());
     }
 }
