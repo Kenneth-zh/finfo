@@ -29,7 +29,9 @@ futures = "0.3.31"
 ```env
 INFLUXDB_URL=http://localhost:8181
 INFLUXDB_TOKEN=your-influxdb-token
+DATABASE=your-database-name
 ```
+或者在系统环境变量中进行配置
 
 ### 调用规范
 详见examples文件夹
