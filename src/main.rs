@@ -8,12 +8,12 @@ mod storage;
 
 use fetch_price::QuoteFetcher;
 use storage::InfluxDBStorage;
+use tokio::fs;
 
-async fn load_watchlist() -> Vec<String> {
-    if let Ok(list) = std::env::var("WATCHLIST") {
-        return list.split(',').map(|s| s.trim().to_string()).collect();
-    }
-    vec!["700.HK".to_string(), "AAPL.US".to_string()]
+async fn load_watchlist() -> Result<Vec<String>> {
+    let data = fs::read_to_string("watchlist.json").await?;
+    let watchlist: Vec<String> = serde_json::from_str(&data)?;
+    Ok(watchlist)
 }
 
 #[tokio::main]
@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
 
     let fetcher = QuoteFetcher::new().await?;
     let storage = InfluxDBStorage::new(storage_url, token)?;
-    let watchlist = load_watchlist().await;
+    let watchlist = load_watchlist().await?;
 
     let mut ticker = interval(Duration::from_secs(30));
     loop {
