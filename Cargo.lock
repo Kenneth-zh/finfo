@@ -175,7 +175,6 @@ dependencies = [
  "atoi",
  "base64 0.22.1",
  "chrono",
- "comfy-table",
  "half",
  "lexical-core",
  "num",
@@ -1057,11 +1056,7 @@ name = "finfo"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "arrow",
- "arrow-array",
  "arrow-flight",
- "arrow-schema",
- "bytes",
  "df-interchange",
  "dotenv",
  "futures",
@@ -1070,6 +1065,7 @@ dependencies = [
  "reqwest 0.11.27",
  "serde",
  "serde_json",
+ "time",
  "tokio",
  "tonic",
 ]
@@ -3886,7 +3882,6 @@ dependencies = [
  "cfg-if",
  "libc",
  "psm",
- "windows-sys 0.52.0",
  "windows-sys 0.59.0",
 ]
 
