@@ -1,12 +1,13 @@
 use anyhow::Result;
 use dotenv::dotenv;
+use futures::future::ok;
 use std::time::Duration;
 use tokio::time::interval;
 
 mod fetch_price;
+mod query;
 mod storage;
 
-use fetch_price::QuoteFetcher;
 use storage::InfluxDBStorage;
 use tokio::fs;
 
@@ -24,14 +25,7 @@ async fn main() -> Result<()> {
     let storage_url = format!("{}/api/v3/write_lp?db={}&precision=second", url, db);
     let token = std::env::var("INFLUXDB_AUTH_TOKEN")?;
 
-    let fetcher = QuoteFetcher::new().await?;
     let storage = InfluxDBStorage::new(storage_url, token)?;
     let watchlist = load_watchlist().await?;
-
-    let mut ticker = interval(Duration::from_secs(30));
-    loop {
-        ticker.tick().await;
-        let prices = fetcher.fetch_prices(&watchlist).await?;
-        storage.write_prices(&prices).await?;
-    }
+    Ok(())
 }

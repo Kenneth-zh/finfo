@@ -1,5 +1,4 @@
 use anyhow::Result;
-use arrow::util::pretty::print_batches;
 use dotenv::dotenv;
 use finfo::FlightSqlClient;
 
@@ -15,9 +14,6 @@ async fn main() -> Result<()> {
 
     // 执行查询
     let batches = client.execute_sql(query_sql).await?;
-
-    // 打印
-    print_batches(&batches)?;
 
     Ok(())
 }

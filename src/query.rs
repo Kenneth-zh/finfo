@@ -1,7 +1,8 @@
 use anyhow::Result;
-use arrow_array::RecordBatch;
 use arrow_flight::sql::client::FlightSqlServiceClient;
+use df_interchange::Interchange;
 use futures::stream::TryStreamExt;
+use polars::prelude::*;
 use tonic::transport::Channel;
 
 pub struct FlightSqlClient {
@@ -24,7 +25,7 @@ impl FlightSqlClient {
     }
 
     /// 使用 SQL 语句创建 Flight 并获取数据
-    pub async fn execute_sql(&mut self, sql: &str) -> Result<Vec<RecordBatch>> {
+    pub async fn execute_sql(&mut self, sql: &str) -> Result<DataFrame> {
         let flight_info = self.client.execute(sql.to_string(), None).await?;
 
         let mut batches = Vec::new();
@@ -39,6 +40,8 @@ impl FlightSqlClient {
             }
         }
 
-        Ok(batches)
+        let df = Interchange::from_arrow_56(batches)?.to_polars_0_51()?;
+
+        Ok(df)
     }
 }
