@@ -7,7 +7,7 @@ use std::time::Duration;
 use time::macros::date;
 use tokio::fs;
 use tokio::sync::mpsc::{self, Receiver, Sender};
-use tokio::time::Instant;
+use tokio::time::*;
 
 const BATCH_MAX: usize = 500;
 const FLUSH_INTERVAL: Duration = Duration::from_secs(1);
@@ -149,7 +149,7 @@ async fn writer_task(mut rx: Receiver<Vec<Kline>>, url: String, token: String) -
                     }
                 }
             }
-            _ = tokio::time::sleep_until(last_flush + FLUSH_INTERVAL) => {
+            _ = sleep_until(last_flush + FLUSH_INTERVAL) => {
                 if !buffer.is_empty() {
                     flush_lines(&client, &url, &token, &mut buffer).await?;
                     last_flush = Instant::now();
@@ -195,7 +195,7 @@ async fn flush_lines(
             }
         }
         // 指数退避
-        tokio::time::sleep(Duration::from_millis(100u64 * 2u64.pow(attempt))).await;
+        sleep(Duration::from_millis(100u64 * 2u64.pow(attempt))).await;
     }
 
     Err(err_opt.unwrap_or_else(|| anyhow::anyhow!("unknown write error")))
