@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-pyo3 = { version = "0.18", features = ["extension-module"] }
 longport = "3.0.13"
 tokio = { version = "1.28", features = ["full"] }
 dotenv = "0.15.0"
