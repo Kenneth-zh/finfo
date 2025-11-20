@@ -39,10 +39,10 @@ async fn main() -> Result<()> {
     dotenv().ok();
     let url = std::env::var("INFLUX_URL")?;
     let db = std::env::var("DATABASE")?;
-    let storage_url = format!("{}/api/v3/write_lp?db={}&precision=second", url, db);
     let token = std::env::var("INFLUXDB_AUTH_TOKEN")?;
 
-    //let storage = InfluxDBStorage::new(storage_url, token)?;
+    let storage_url = format!("{}/api/v3/write_lp?db={}&precision=second", url, db);
+
     let watchlist = load_watchlist().await?;
 
     let (tx, rx) = mpsc::channel::<Vec<Kline>>(256);
@@ -59,7 +59,7 @@ async fn main() -> Result<()> {
         let tx_clone = tx.clone();
         let qctx_clone = quote_ctx.clone();
         tokio::spawn(async move {
-            if let Err(e) = getter_task(tx_clone, qctx_clone, sym).await {
+            if let Err(e) = getter_task(tx_clone, qctx_clone, &sym).await {
                 eprintln!("produce error: {}", e);
             }
         });
@@ -77,11 +77,11 @@ async fn main() -> Result<()> {
 async fn getter_task(
     sender: Sender<Vec<Kline>>,
     quote_ctx: QuoteContext,
-    symbol: String,
+    symbol: &str,
 ) -> Result<()> {
     let candlesticks = quote_ctx
         .history_candlesticks_by_date(
-            symbol.clone(),
+            symbol,
             Period::Day,
             AdjustType::NoAdjust,
             Some(date!(2025 - 01 - 01)),
@@ -93,7 +93,7 @@ async fn getter_task(
     let mut klines = Vec::with_capacity(candlesticks.len());
     for c in candlesticks.into_iter() {
         let k = Kline {
-            symbol: symbol.clone(),
+            symbol: String::from(symbol),
             open: decimal_to_f64(c.open),
             high: decimal_to_f64(c.high),
             low: decimal_to_f64(c.low),
@@ -148,7 +148,7 @@ async fn writer_task(mut rx: Receiver<Vec<Kline>>, url: String, token: String) -
                         break;
                     }
                 }
-            }
+            },
             _ = sleep_until(last_flush + FLUSH_INTERVAL) => {
                 if !buffer.is_empty() {
                     flush_lines(&client, &url, &token, &mut buffer).await?;

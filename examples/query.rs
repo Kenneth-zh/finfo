@@ -4,7 +4,6 @@ use finfo::query::FlightSqlClient;
 use std::env;
 
 use df_interchange::Interchange;
-use polars::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
